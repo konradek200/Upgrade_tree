@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Tree</title>
+    <style>
+        /* Ustawienia stylu dla elementów na stronie */
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+        }
+        .fragment-display {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .circle-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: lightblue;
+            color: black;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 100px auto;
+            cursor: pointer;
+        }
+        .menu {
+            display: none;
+            margin-top: 20px;
+        }
+        .upgrade {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .green {
+            background-color: green;
+        }
+        .red {
+            background-color: red;
+        }
+        .blue {
+            background-color: blue;
+        }
+        #convertButton{
+            background-color: aqua;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <!-- Wyświetlanie ilości "Fragment Points" i ich generacji na sekundę -->
+    <div class="fragment-display">
+        <h2>Fragment Points: <span id="fragmentPoints">0</span></h2>
+        <p><span id="generationRate">0</span> Fragment points/s</p>
+    </div>
+
+    <!-- Główne kółko z literą P, na kliknięcie wyświetla menu -->
+    <div class="circle-button" id="mainCircle">P</div>
+
+    <!-- Menu, które się pojawia po kliknięciu w kółko -->
+    <div class="menu" id="circleMenu">
+        <h3>Points</h3>
+        <p><span id="points">0</span> Points</p>
+        <p>You will get: <span id="convertPoints">0</span> Points (Request 20 Fragment Points)</p>
+        <button id="convertButton">Turn Fragment Points to Points</button>
+
+        <!-- Ulepszenia dostępne do zakupu -->
+        <h3>Upgrade</h3>
+        <div class="upgrade">
+            <button id="upgrade1" class="red">Upgrade 1: +1 fragment Points/s (5 Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="upgrade2" class="red">Upgrade 2: x1.5 fragment Points (10 Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="upgrade3" class="red">Upgrade 3: Boost Fragment Points by Points (25 Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="upgrade4" class="red">Upgrade 4: Boost Fragment Points by itself (50 Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="upgrade5" class="red">Upgrade 5: x5 Fragment Points (100 Points)</button>
+        </div>
+    </div>
+
+    <script>
+        // Definiowanie zmiennych dla fragmentów, punktów i szybkości generowania fragmentów
+        let fragmentPoints = 0;
+        let points = 0;
+        let baseGenerationRate = 1; // Podstawowa prędkość generacji
+        let fragmentPerSecond = 0;
+        let multiplier = 1; // Globalny mnożnik, który będzie się zmieniał przy kupnie ulepszeń
+
+        // Zmienna do przechowywania statusu, czy ulepszenia są zakupione
+        let upgrades = [false, false, false, false, false];
+        let upgradeCosts = [5, 10, 25, 50, 100];
+
+        // Aktualizowanie liczników na stronie
+        function updateDisplay() {
+            document.getElementById('fragmentPoints').textContent = Math.floor(fragmentPoints);
+            document.getElementById('generationRate').textContent = (baseGenerationRate * multiplier).toFixed(2);
+            document.getElementById('points').textContent = points;
+            
+            // Wyliczenie możliwych punktów do przemiany
+            const convertPoints = fragmentPoints >= 20 ? Math.floor(Math.sqrt(fragmentPoints / 2)) : 0;
+            document.getElementById('convertPoints').textContent = convertPoints;
+
+            // Aktualizacja kolorów przycisków ulepszeń
+            updateUpgradeButtons();
+        }
+
+        // Funkcja generująca fragmenty w czasie
+        function generateFragments() {
+            fragmentPoints += (baseGenerationRate * multiplier) / 60;
+            updateDisplay();
+        }
+
+        // Co sekundę aktualizuje fragmenty oraz generuje je na podstawie szybkości generowania
+        setInterval(generateFragments, 1000 / 60); // 60 razy na sekundę
+
+        // Wyświetlanie/ukrywanie menu po kliknięciu w kółko
+        document.getElementById('mainCircle').addEventListener('click', () => {
+            const menu = document.getElementById('circleMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Przycisk konwertujący fragmenty na punkty
+        document.getElementById('convertButton').addEventListener('click', () => {
+            if (fragmentPoints >= 20) {
+                const convertPoints = Math.floor(Math.sqrt(fragmentPoints / 2));
+                points += convertPoints;
+                fragmentPoints = 0;
+                updateDisplay();
+            }
+        });
+
+        // Funkcja aktualizująca kolory przycisków ulepszeń
+        function updateUpgradeButtons() {
+            for (let i = 0; i < upgrades.length; i++) {
+                const button = document.getElementById(`upgrade${i + 1}`);
+                if (upgrades[i]) {
+                    button.className = 'blue'; // Ulepszenie kupione
+                } else if (points >= upgradeCosts[i]) {
+                    button.className = 'green'; // Można kupić
+                } else {
+                    button.className = 'red'; // Nie można kupić
+                }
+            }
+        }
+
+        // Zakup ulepszenia 1 (1 Fragment point/s za 5 points)
+        document.getElementById('upgrade1').addEventListener('click', () => {
+            if (points >= 5 && !upgrades[0]) {
+                points -= 5;
+                baseGenerationRate += 1; // Dodajemy do podstawowej szybkości generacji
+                upgrades[0] = true;
+                updateDisplay();
+            }
+        });
+
+        // Zakup ulepszenia 2 (mnożenie szybkości o 1.5 za 20 points)
+        document.getElementById('upgrade2').addEventListener('click', () => {
+            if (points >= 10 && !upgrades[1]) {
+                points -= 10;
+                multiplier *= 1.5; // Mnożymy globalny mnożnik
+                upgrades[1] = true;
+                updateDisplay();
+            }
+        });
+
+        // Zakup ulepszenia 3 (dodanie mnożnika root(points/5) do globalnego mnożnika za 50 points)
+        document.getElementById('upgrade3').addEventListener('click', () => {
+            if (points >= 25 && !upgrades[2]) {
+                points -= 25;
+                multiplier *= Math.sqrt(points / 5); // Mnożymy globalny mnożnik przez sqrt(points/5)
+                upgrades[2] = true;
+                updateDisplay();
+            }
+        });
+
+        // Zakup ulepszenia 4 (dodanie mnożnika log10(Fragment points) do globalnego mnożnika za 100 points)
+        document.getElementById('upgrade4').addEventListener('click', () => {
+            if (points >= 50 && !upgrades[3]) {
+                points -= 50;
+                multiplier *= Math.log10(fragmentPoints + 1); // Mnożymy globalny mnożnik przez log10(fragment points + 1)
+                upgrades[3] = true;
+                updateDisplay();
+            }
+        });
+
+        // Zakup ulepszenia 5 (mnożenie globalnego mnożnika przez 5 za 200 points)
+        document.getElementById('upgrade5').addEventListener('click', () => {
+            if (points >= 100 && !upgrades[4]) {
+                points -= 100;
+                multiplier *= 5; // Mnożymy globalny mnożnik przez 5
+                upgrades[4] = true;
+                updateDisplay();
+            }
+        });
+
+        // Dynamiczna aktualizacja mnożników co sekundę
+        function updateMultipliers() {
+            let currentMultiplier = 1;
+            if (upgrades[1]) currentMultiplier *= 1.5;
+            if (upgrades[2]) currentMultiplier *= Math.sqrt(points / 5)+1;
+            if (upgrades[3]) currentMultiplier *= Math.log10(fragmentPoints + 1)+1;
+            if (upgrades[4]) currentMultiplier *= 5;
+
+            multiplier = currentMultiplier;
+            updateDisplay();
+        }
+
+        // Aktualizacja mnożników co 1 sekundę
+        setInterval(updateMultipliers, 1000);
+
+        // Uruchomienie początkowej aktualizacji przycisków
+        updateDisplay();
+    </script>
+</body>
+</html>
