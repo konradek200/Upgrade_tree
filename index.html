@@ -4,244 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrade Tree</title>
-    <style>
-        /* Ustawienia stylu dla elementów na stronie */
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-        }
-        .fragment-display {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        .circle-button {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: lightblue;
-            color: black;
-            font-size: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 100px auto;
-            cursor: pointer;
-        }
-        .menu {
-            display: none;
-            margin-top: 20px;
-        }
-        .upgrade {
-            margin: 10px 0;
-        }
-        button {
-            padding: 10px 20px;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .green {
-            background-color: green;
-        }
-        .red {
-            background-color: red;
-        }
-        .blue {
-            background-color: blue;
-        }
-        #convertButton {
-            background-color: aqua;
-            color: black;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <!-- Wyświetlanie ilości "Fragment Points" i ich generacji na sekundę -->
     <div class="fragment-display">
         <h2>Fragment Points: <span id="fragmentPoints">0</span></h2>
         <p><span id="generationRate">0</span> Fragment points/s</p>
     </div>
 
-    <!-- Główne kółko z literą P, na kliknięcie wyświetla menu -->
     <div class="circle-button" id="mainCircle">P</div>
+    <div class="line"></div>
+    <div class="rebirth-circle" id="rebirthCircle">R</div>
 
-    <!-- Menu, które się pojawia po kliknięciu w kółko -->
     <div class="menu" id="circleMenu">
         <h3>Points</h3>
         <p><span id="points">0</span> Points</p>
-        <p>You will get: <span id="convertPoints">0</span> Points (Request 20 Fragment Points)</p>
-        <button id="convertButton">Turn Fragment Points to Points</button>
+        <p>You will get: <span id="convertPoints">0</span> Points (Request 10 Fragment Points)</p>
+        <button id="convertButton" style="background-color: aqua; color: black;">Turn Fragment Points to Points</button>
 
-        <!-- Ulepszenia dostępne do zakupu -->
         <h3>Upgrade</h3>
         <div class="upgrade">
-            <button id="upgrade1" class="red">Upgrade 1: +1 fragment Points/s (5 Points)</button>
+            <button id="upgrade1" class="upgrade-button">Upgrade 1: +1 fragment Points/s (5 Points)</button>
         </div>
         <div class="upgrade">
-            <button id="upgrade2" class="red">Upgrade 2: x1.5 fragment Points (10 Points)</button>
+            <button id="upgrade2" class="upgrade-button">Upgrade 2: x1.5 fragment Points (10 Points)</button>
         </div>
         <div class="upgrade">
-            <button id="upgrade3" class="red">Upgrade 3: Boost Fragment Points by Points (25 Points)</button>
+            <button id="upgrade3" class="upgrade-button">Upgrade 3: Boost Fragment Points by Points (25 Points)</button>
         </div>
         <div class="upgrade">
-            <button id="upgrade4" class="red">Upgrade 4: Boost Fragment Points by itself (50 Points)</button>
+            <button id="upgrade4" class="upgrade-button">Upgrade 4: Boost Fragment Points by itself (50 Points)</button>
         </div>
         <div class="upgrade">
-            <button id="upgrade5" class="red">Upgrade 5: x2 Points (100 Points)</button>
+            <button id="upgrade5" class="upgrade-button">Upgrade 5: x2 Points (100 Points)</button>
         </div>
         <div class="upgrade">
-            <button id="upgrade6" class="red">Upgrade 6: Boost points by itself (150 Points)</button>
+            <button id="upgrade6" class="upgrade-button">Upgrade 6: Boost points by itself (150 Points)</button>
         </div>
         <div class="upgrade">
-            <button id="upgrade7" class="red">Boost points by fragment points (250 Points)</button>
+            <button id="upgrade7" class="upgrade-button">Upgrade 7: Boost points by fragment points (250 Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="upgrade8" class="upgrade-button">Upgrade 8: Boost points by itself again (500 Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="upgrade9" class="upgrade-button">Upgrade 9: Boost fragment points by points again (1000 Points)</button>
         </div>
     </div>
 
-    <script>
-        // Stałe zamiast magicznych liczb
-        const CONVERSION_THRESHOLD = 20;
-        const FRAMES_PER_SECOND = 60;
+    <div class="menu" id="rebirthMenu">
+        <h3>Rebirth Upgrades</h3>
+        <p>You have: <span id="rebirthPointsDisplay">0</span> Rebirth Points</p>
+        <p>You will get: <span id="rebirthConvertPoints">0</span> Rebirth Points (Request 500 Points and 9 upgrade from poits layer)</p>
+        <button id="rebirthConvertButton" style="background-color: aqua; color: black;">Convert Fragment Points and Points to Rebirth Points</button>
+        
+        <h3>Rebirth Upgrades</h3>
+        <div class="upgrade">
+            <button id="rebirthUpgrade1" class="upgrade-button">Rebirth Upgrade 1: x2 Base Fragment Points Generation (1 Rebirth Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="rebirthUpgrade2" class="upgrade-button">Rebirth Upgrade 2: x2 Points Generation (3 Rebirth Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="rebirthUpgrade3" class="upgrade-button">Rebirth Upgrade 3: Boost fragment points by rebirth points (7 Rebirth Points)</button>
+        </div>
+        <div class="upgrade">
+            <button id="rebirthUpgrade4" class="upgrade-button">Rebirth Upgrade 4: Boost points by rebirth points (15 Rebirth Points)</button>
+        </div>
+    </div>
 
-        // Definiowanie zmiennych dla fragmentów, punktów i szybkości generowania fragmentów
-        let fragmentPoints = 0;
-        let points = 0;
-        let baseGenerationRate = 1; // Podstawowa prędkość generacji
-        let fragmentPerSecond = 0;
-        let multiplier = 1; // Globalny mnożnik, który będzie się zmieniał przy kupnie ulepszeń
-        let pointsMultiplier = 1;
-
-        // Zmienna do przechowywania statusu, czy ulepszenia są zakupione
-        let isUpgradePurchased = [false, false, false, false, false, false, false]; // Zmiana z "upgrades"
-        let upgradeCosts = [5, 10, 25, 50, 100, 150, 250];
-
-        // Aktualizowanie liczników na stronie (Funkcja ogólna)
-        function updateFragmentAndPointDisplay() {
-            updateFragmentDisplay();
-            updatePointsDisplay();
-            updateUpgradeButtons();
-            updateMultipliers();
-        }
-
-        function updateFragmentDisplay() {
-            document.getElementById('fragmentPoints').textContent = Math.floor(fragmentPoints);
-            document.getElementById('generationRate').textContent = (baseGenerationRate * multiplier).toFixed(2);
-        }
-
-        function updatePointsDisplay() {
-            document.getElementById('points').textContent = points;
-            const convertPoints = fragmentPoints >= CONVERSION_THRESHOLD 
-                ? Math.floor(Math.sqrt(fragmentPoints / 2) * pointsMultiplier) : 0;
-            document.getElementById('convertPoints').textContent = convertPoints;
-        }
-
-        // Funkcja generująca fragmenty w czasie
-        function generateFragments() {
-            fragmentPoints += (baseGenerationRate * multiplier) / FRAMES_PER_SECOND;
-            updateFragmentAndPointDisplay();
-        }
-
-        // Wyświetlanie/ukrywanie menu po kliknięciu w kółko
-        document.getElementById('mainCircle').addEventListener('click', () => {
-            const menu = document.getElementById('circleMenu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        });
-
-        // Sprawdzanie, czy można kupić ulepszenie
-        function canPurchaseUpgrade(index, cost) {
-            return points >= cost && !isUpgradePurchased[index];
-        }
-
-        // Funkcja zakupu ulepszenia
-        function purchaseUpgrade(index, cost, effect) {
-            if (canPurchaseUpgrade(index, cost)) {
-                points -= cost;
-                effect();
-                isUpgradePurchased[index] = true;
-                updateFragmentAndPointDisplay();
-            }
-        }
-
-        // Zakup ulepszeń
-        document.getElementById('upgrade1').addEventListener('click', () => {
-            purchaseUpgrade(0, 5, () => baseGenerationRate += 1);
-        });
-
-        document.getElementById('upgrade2').addEventListener('click', () => {
-            purchaseUpgrade(1, 10, () => multiplier *= 1.5);
-        });
-
-        document.getElementById('upgrade3').addEventListener('click', () => {
-            purchaseUpgrade(2, 25, () => multiplier *= Math.sqrt(points / 5));
-        });
-
-        document.getElementById('upgrade4').addEventListener('click', () => {
-            purchaseUpgrade(3, 50, () => multiplier *= Math.log10(fragmentPoints + 1));
-        });
-
-        document.getElementById('upgrade5').addEventListener('click', () => {
-            purchaseUpgrade(4, 100, () => pointsMultiplier *= 2);
-        });
-
-        document.getElementById('upgrade6').addEventListener('click', () => {
-            purchaseUpgrade(5, 150, () => pointsMultiplier *= Math.log10(points + 1));
-        });
-
-        document.getElementById('upgrade7').addEventListener('click', () => {
-            purchaseUpgrade(6, 250, () => pointsMultiplier *= Math.sqrt(fragmentPoints / 5));
-        });
-
-        // Funkcja sprawdzająca, czy można konwertować fragmenty na punkty
-        function canConvertFragments() {
-            return fragmentPoints >= CONVERSION_THRESHOLD;
-        }
-
-        // Przycisk konwertujący fragmenty na punkty
-        document.getElementById('convertButton').addEventListener('click', () => {
-            if (canConvertFragments()) {
-                const convertPoints = Math.floor(Math.sqrt(fragmentPoints / 2) * pointsMultiplier);
-                points += convertPoints;
-                fragmentPoints = 0;
-                updateFragmentAndPointDisplay();
-            }
-        });
-
-        // Funkcja aktualizująca kolory przycisków ulepszeń
-        function updateUpgradeButtons() {
-            for (let i = 0; i < isUpgradePurchased.length; i++) {
-                const button = document.getElementById(`upgrade${i + 1}`);
-                if (isUpgradePurchased[i]) {
-                    button.className = 'blue'; // Ulepszenie kupione
-                } else if (points >= upgradeCosts[i]) {
-                    button.className = 'green'; // Można kupić
-                } else {
-                    button.className = 'red'; // Nie można kupić
-                }
-            }
-        }
-
-        // Aktualizacja mnożników co 1 sekundę
-        function updateMultipliers() {
-            let currentMultiplier = 1;
-            if (isUpgradePurchased[1]) {
-                currentMultiplier *= 1.5;
-            }
-            if (isUpgradePurchased[2]) {
-                currentMultiplier *= Math.sqrt(points / 5)+1;
-            }
-            if (isUpgradePurchased[3]) {
-                currentMultiplier *= Math.log10(fragmentPoints + 1)+1;
-            }
-            multiplier = currentMultiplier;
-        }
-
-        // Uruchomienie generacji fragmentów
-        setInterval(generateFragments, 1000 / FRAMES_PER_SECOND);
-
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
