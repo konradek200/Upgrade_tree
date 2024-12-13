@@ -1,0 +1,74 @@
+
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+}
+.fragment-display {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.circle-button {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: lightblue;
+    color: black;
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    cursor: pointer;
+}
+.rebirth-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: lightcoral;
+    color: black;
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0px auto;
+    cursor: pointer;
+}
+.line {
+    width: 10px;
+    height: 20px;
+    background-color: white;
+    margin: auto;
+}
+.menu {
+    display: none;
+    margin-top: 20px;
+}
+.upgrade {
+    margin: 10px 0;
+}
+button {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.green {
+     background-color: green;
+}
+.red {
+    background-color: red;
+}
+.blue {
+    background-color: blue;
+}
+button:disabled {
+    cursor: not-allowed;
+}
