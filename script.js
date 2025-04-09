@@ -1,250 +1,357 @@
-        const CONVERSION_THRESHOLD = 10;
-        const REBIRTH_CONVERSION_THRESHOLD = 500;
-        const FRAMES_PER_SECOND = 60;
+const CONVERSION_THRESHOLD = 10;
+const REBIRTH_CONVERSION_THRESHOLD = 500;
+const FRAMES_PER_SECOND = 60;
+const PRESTIGE_CONVERSION_THRESHOLD = 10;
 
-        // Definiowanie zmiennych dla fragmentów, punktów i szybkości generowania fragmentów
-        let fragmentPoints = 0;
-        let points = 0;
-        let baseGenerationRate = 1; // Podstawowa prędkość generacji
-        let fragmentPerSecond = 0;
-        let multiplier = 1; // Globalny mnożnik, który będzie się zmieniał przy kupnie ulepszeń
-        let pointsMultiplier = 1;
-        let rebirthPoints = 0;
-        let preBaseGenerationRate = 1;
+let fragmentPoints = 0;
+let points = 0;
+let baseGenerationRate = 1;
+let multiplier = 1;
+let pointsMultiplier = 1;
+let rebirthPoints = 0;
+let preBaseGenerationRate = 1;
+let prestigePoints = 0;
+let rebirthMultiplier = 1;
 
-        // Zmienna do przechowywania statusu, czy ulepszenia są zakupione
-        let isUpgradePurchased = [false, false, false, false, false, false, false, false, false]; // Zmiana z "upgrades"
-        let upgradeCosts = [5, 10, 25, 50, 100, 150, 250, 500, 1000];
+let isUpgradePurchased = [false, false, false, false, false, false, false, false, false];
+let upgradeCosts = [5, 10, 25, 50, 100, 150, 250, 500, 1000];
 
-        let isRebirthUpgradePurchased = [false, false, false, false];
-        let rebirthUpgradeCosts = [1, 3, 7, 15];
+let isRebirthUpgradePurchased = [false, false, false, false];
+let rebirthUpgradeCosts = [1, 3, 7, 15];
 
-        // Aktualizowanie liczników na stronie (Funkcja ogólna)
-        function updateFragmentAndPointDisplay() {
-            updateFragmentDisplay();
-            updatePointsDisplay();
-            updateUpgradeButtons();
-            updateMultipliers();
-            updatePointsMultipliers();
-            updateRebirthDisplay();
-        }
+let isPrestigeUpgradePurchased = [false, false, false];
+let prestigeUpgradeCosts = [1, 2, 4];
 
-        function updateFragmentDisplay() {
-            document.getElementById('fragmentPoints').textContent = Math.floor(fragmentPoints);
-            document.getElementById('generationRate').textContent = (baseGenerationRate * multiplier * preBaseGenerationRate).toFixed(2);
-        }
+function updateFragmentAndPointDisplay() {
+    updateFragmentDisplay();
+    updatePointsDisplay();
+    updateUpgradeButtons();
+    updateMultipliers();
+    updatePointsMultipliers();
+    updateRebirthDisplay();
+    updatePrestigeDisplay();
+}
 
-        function updatePointsDisplay() {
-            document.getElementById('points').textContent = points;
-            const convertPoints = fragmentPoints >= CONVERSION_THRESHOLD 
-                ? Math.floor(Math.sqrt(fragmentPoints / 10) * pointsMultiplier) : 0;
-            document.getElementById('convertPoints').textContent = convertPoints;
-        }
+function updateFragmentDisplay() {
+    document.getElementById('fragmentPoints').textContent = Math.floor(fragmentPoints);
+    document.getElementById('generationRate').textContent = (baseGenerationRate * multiplier * preBaseGenerationRate).toFixed(2);
+}
 
-        // Funkcja generująca fragmenty w czasie
-        function generateFragments() {
-            fragmentPoints += (baseGenerationRate * multiplier) / FRAMES_PER_SECOND;
-            updateFragmentAndPointDisplay();
-        }
+function convertFragmentsToPoints(fragmentPoints) {
+    let points = 0;
+    let requiredFragments = 10;
+    let increment = 4;
 
-        // Wyświetlanie/ukrywanie menu po kliknięciu w kółko
-        document.getElementById('mainCircle').addEventListener('click', () => {
-            const menu = document.getElementById('circleMenu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        });
+    while (fragmentPoints >= requiredFragments) {
+        points += 1;
+        requiredFragments += increment;
+        increment += 2;
+    }
+    
+    return points;
+}
 
-        document.getElementById('rebirthCircle').addEventListener('click', () => {
-            const menu = document.getElementById('rebirthMenu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        });
+function convertPointsToRebirth(points) {
+    let rebirthPoints = 0;
+    let requiredPoints = 3000;
+    let increment = 1000;
 
-        // Sprawdzanie, czy można kupić ulepszenie
-        function canPurchaseUpgrade(index, cost) {
-            return points >= cost && !isUpgradePurchased[index];
-        }
+    while (points >= requiredPoints) {
+        rebirthPoints += 1;
+        requiredPoints += increment;
+        increment += 200;
+    }
+    
+    return rebirthPoints;
+}
 
-        function canPurchaseRebirthUpgrade(index, cost) {
-            return rebirthPoints >= cost && !isUpgradePurchased[index];
-        }
+function convertRebirthToMega(rebirthPoints) {
+    let prestigePoints = 0;
+    let requiredPoints = 10;
+    let increment = 10;
 
-        // Funkcja zakupu ulepszenia
-        function purchaseUpgrade(index, cost, effect) {
-            if (canPurchaseUpgrade(index, cost)) {
-                points -= cost;
-                effect();
-                isUpgradePurchased[index] = true;
-                updateFragmentAndPointDisplay();
-            }
-        }
+    while (rebirthPoints >= requiredPoints) {
+        prestigePoints += 1;
+        requiredPoints += increment;
+        increment += 8;
+    }
+    
+    return prestigePoints;
+}
 
-        function purchaseRebirthUpgrade(index, cost, effect) {
-            if (canPurchaseRebirthUpgrade(index, cost)) {
-                rebirthPoints -= cost;
-                effect();
-                isRebirthUpgradePurchased[index] = true;
-                updateFragmentAndPointDisplay();
-            }
-        }
+function updatePointsDisplay() {
+    document.getElementById('points').textContent = points;
+    const convertPoints = fragmentPoints >= CONVERSION_THRESHOLD
+        ? convertFragmentsToPoints(fragmentPoints) * pointsMultiplier : 0;
+    document.getElementById('convertPoints').textContent = convertPoints;
+}
 
-        // Zakup ulepszeń
-        document.getElementById('upgrade1').addEventListener('click', () => {
-            purchaseUpgrade(0, 5, () => baseGenerationRate += 1);
-        });
+function generateFragments() {
+    fragmentPoints += (baseGenerationRate * multiplier) / FRAMES_PER_SECOND;
+    updateFragmentAndPointDisplay();
+}
 
-        document.getElementById('upgrade2').addEventListener('click', () => {
-            purchaseUpgrade(1, 10, () => multiplier *= 1.5);
-        });
+document.getElementById('mainCircle').addEventListener('click', () => {
+    const menu = document.getElementById('circleMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+});
 
-        document.getElementById('upgrade3').addEventListener('click', () => {
-            purchaseUpgrade(2, 25, () => multiplier *= Math.sqrt(points / 5));
-        });
+document.getElementById('rebirthCircle').addEventListener('click', () => {
+    const menu = document.getElementById('rebirthMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+});
 
-        document.getElementById('upgrade4').addEventListener('click', () => {
-            purchaseUpgrade(3, 50, () => multiplier *= Math.log10(fragmentPoints + 1));
-        });
+document.getElementById('prestigeCircle').addEventListener('click', () => {
+    const menu = document.getElementById('prestigeMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+});
 
-        document.getElementById('upgrade5').addEventListener('click', () => {
-            purchaseUpgrade(4, 100, () => pointsMultiplier *= 2);
-        });
+function canPurchaseUpgrade(index, cost) {
+    return points >= cost && !isUpgradePurchased[index];
+}
 
-        document.getElementById('upgrade6').addEventListener('click', () => {
-            purchaseUpgrade(5, 150, () => pointsMultiplier *= Math.log10(points + 1));
-        });
+function canPurchaseRebirthUpgrade(index, cost) {
+    return rebirthPoints >= cost && !isRebirthUpgradePurchased[index];
+}
 
-        document.getElementById('upgrade7').addEventListener('click', () => {
-            purchaseUpgrade(6, 250, () => pointsMultiplier *= Math.sqrt(fragmentPoints / 5));
-        });
+function canPurchasePrestigeUpgrade(index, cost) {
+    return prestigePoints >= cost && !isPrestigeUpgradePurchased[index];
+}
 
-        document.getElementById('upgrade8').addEventListener('click', () => {
-            purchaseUpgrade(7, 500, () => pointsMultiplier *= Math.sqrt(Math.sqrt(points + 1))+1);
-        });
+function purchaseUpgrade(index, cost, effect) {
+    if (canPurchaseUpgrade(index, cost)) {
+        points -= cost;
+        effect();
+        isUpgradePurchased[index] = true;
+        updateFragmentAndPointDisplay();
+    }
+}
 
-        document.getElementById('upgrade9').addEventListener('click', () => {
-            purchaseUpgrade(8, 1000, () => multiplier *= Math.log10(Math.log10(points / 5)));
-        });
+function purchaseRebirthUpgrade(index, cost, effect) {
+    if (canPurchaseRebirthUpgrade(index, cost)) {
+        rebirthPoints -= cost;
+        effect();
+        isRebirthUpgradePurchased[index] = true;
+        updateFragmentAndPointDisplay();
+    }
+}
 
-        document.getElementById('rebirthUpgrade1').addEventListener('click', () => {
-            purchaseRebirthUpgrade(0, 1, () => preBaseGenerationRate *= 2);
-        });
+function purchasePrestigeUpgrade(index, cost, effect) {
+    if (canPurchasePrestigeUpgrade(index, cost)) {
+        prestigePoints -= cost;
+        effect();
+        isPrestigeUpgradePurchased[index] = true;
+        updateFragmentAndPointDisplay();
+    }
+}
 
-        document.getElementById('rebirthUpgrade2').addEventListener('click', () => {
-            purchaseRebirthUpgrade(1, 3, () => pointsMultiplier *= 2);
-        });
+document.getElementById('upgrade1').addEventListener('click', () => {
+    purchaseUpgrade(0, 5, () => baseGenerationRate += 1);
+});
 
-        document.getElementById('rebirthUpgrade3').addEventListener('click', () => {
-            purchaseRebirthUpgrade(2, 7, () => multiplier *= Math.log10(Math.sqrt(rebirthPoints)));
-        });
+document.getElementById('upgrade2').addEventListener('click', () => {
+    purchaseUpgrade(1, 10, () => multiplier *= 1.5);
+});
 
-        document.getElementById('rebirthUpgrade4').addEventListener('click', () => {
-            purchaseRebirthUpgrade(3, 15, () => pointsMultiplier *= Math.sqrt(Math.log10(Math.sqrt(rebirthPoints))));
-        });
+document.getElementById('upgrade3').addEventListener('click', () => {
+    purchaseUpgrade(2, 25, () => multiplier *= Math.sqrt(points / 5));
+});
 
-        // Funkcja sprawdzająca, czy można konwertować fragmenty na punkty
-        function canConvertFragments() {
-            return fragmentPoints >= CONVERSION_THRESHOLD;
-        }
+document.getElementById('upgrade4').addEventListener('click', () => {
+    purchaseUpgrade(3, 50, () => multiplier *= Math.log10(fragmentPoints + 1));
+});
 
-        // Przycisk konwertujący fragmenty na punkty
-        document.getElementById('convertButton').addEventListener('click', () => {
-            if (canConvertFragments()) {
-                const convertPoints = Math.floor(Math.sqrt(fragmentPoints / 10) * pointsMultiplier);
-                points += convertPoints;
-                fragmentPoints = 0;
-                updateFragmentAndPointDisplay();
-            }
-        });
+document.getElementById('upgrade5').addEventListener('click', () => {
+    purchaseUpgrade(4, 100, () => pointsMultiplier *= 2);
+});
 
+document.getElementById('upgrade6').addEventListener('click', () => {
+    purchaseUpgrade(5, 150, () => pointsMultiplier *= Math.log10(points + 1));
+});
+
+document.getElementById('upgrade7').addEventListener('click', () => {
+    purchaseUpgrade(6, 250, () => pointsMultiplier *= Math.sqrt(fragmentPoints / 5));
+});
+
+document.getElementById('upgrade8').addEventListener('click', () => {
+    purchaseUpgrade(7, 500, () => pointsMultiplier *= Math.sqrt(Math.sqrt(points + 1)) + 1);
+});
+
+document.getElementById('upgrade9').addEventListener('click', () => {
+    purchaseUpgrade(8, 1000, () => multiplier *= Math.log10(Math.log10(points / 5)));
+});
+
+document.getElementById('rebirthUpgrade1').addEventListener('click', () => {
+    purchaseRebirthUpgrade(0, 1, () => preBaseGenerationRate *= 2);
+});
+
+document.getElementById('rebirthUpgrade2').addEventListener('click', () => {
+    purchaseRebirthUpgrade(1, 3, () => pointsMultiplier *= 2);
+});
+
+document.getElementById('rebirthUpgrade3').addEventListener('click', () => {
+    purchaseRebirthUpgrade(2, 7, () => multiplier *= Math.log10(Math.sqrt(rebirthPoints)));
+});
+
+document.getElementById('rebirthUpgrade4').addEventListener('click', () => {
+    purchaseRebirthUpgrade(3, 15, () => pointsMultiplier *= Math.sqrt(Math.log10(Math.sqrt(rebirthPoints))));
+});
+
+document.getElementById('prestigeUpgrade1').addEventListener('click', () => {
+    purchasePrestigeUpgrade(0, 1, () => pointsMultiplier *= 3);
+});
+
+document.getElementById('prestigeUpgrade2').addEventListener('click', () => {
+    purchasePrestigeUpgrade(1, 2, () => multiplier *= 10);
+});
+
+document.getElementById('prestigeUpgrade3').addEventListener('click', () => {
+    purchasePrestigeUpgrade(2, 4, () => rebirthMultiplier *= 2);
+});
+
+function canConvertFragments() {
+    return fragmentPoints >= CONVERSION_THRESHOLD;
+}
+
+document.getElementById('convertButton').addEventListener('click', () => {
+    if (canConvertFragments()) {
+        const convertPoints = convertFragmentsToPoints((fragmentPoints * pointsMultiplier));
+        points += convertPoints;
+        fragmentPoints = 0;
+    }
+});
+
+function updateRebirthDisplay() {
+    document.getElementById('rebirthConvertButton').addEventListener('click', () => {
+        const convertPoints = points >= REBIRTH_CONVERSION_THRESHOLD && isUpgradePurchased[8]
+            ? convertPointsToRebirth((points * rebirthMultiplier)) : 0;
+
+        rebirthPoints += convertPoints;
+        fragmentPoints = 0;
+        points = 0;
+        baseGenerationRate = 1;
+        multiplier = 1;
+        pointsMultiplier = 1;
+        isUpgradePurchased.fill(false);
+    });
+
+    const convertPoints = points >= REBIRTH_CONVERSION_THRESHOLD
+        ? convertPointsToRebirth((points * pointsMultiplier)) : 0;
+    document.getElementById('rebirthPointsDisplay').textContent = rebirthPoints;
+    document.getElementById('rebirthConvertPoints').textContent = convertPoints;
+}
+
+function updatePrestigeDisplay() {
+    document.getElementById('prestigeConvertButton').addEventListener('click', () => {
+        const convertPoints = rebirthPoints >= PRESTIGE_CONVERSION_THRESHOLD && isRebirthUpgradePurchased[3]
+            ? convertRebirthToMega((rebirthPoints * rebirthMultiplier)) : 0;
+
+        prestigePoints += convertPoints;
+        rebirthPoints = 0;
+        fragmentPoints = 0;
+        points = 0;
+        baseGenerationRate = 1;
+        multiplier = 1;
+        pointsMultiplier = 1;
+        isRebirthUpgradePurchased.fill(false);
+        isUpgradePurchased.fill(false)
         
-        function updateRebirthDisplay() {
-            document.getElementById('rebirthConvertButton').addEventListener('click', () => {
-                const convertPoints = points >= REBIRTH_CONVERSION_THRESHOLD && isUpgradePurchased[8]
-                    ? Math.floor(Math.log10(Math.sqrt(points / 5))) : 0;
+    });
 
-                rebirthPoints += convertPoints; // Przypisanie wyniku konwersji
-                fragmentPoints = 0;
-                points = 0;
-                baseGenerationRate = 1; // Reset bazowej prędkości generacji
-                multiplier = 1; // Reset mnożników
-                pointsMultiplier = 1; // Reset mnożników punktów
-                isUpgradePurchased.fill(false); // Reset wszystkich zakupionych ulepszeń
+    const convertPoints = rebirthPoints >= PRESTIGE_CONVERSION_THRESHOLD
+        ? convertRebirthToMega(rebirthPoints * rebirthMultiplier) : 0;
+    document.getElementById('prestigePointsDisplay').textContent = prestigePoints;
+    document.getElementById('prestigeConvertPoints').textContent = convertPoints;
+}
 
-                updateFragmentAndPointDisplay();
-                updateRebirthDisplay(); // Aktualizacja wyświetlacza Rebirth Points
-        });
-
-            const convertPoints = points >= REBIRTH_CONVERSION_THRESHOLD 
-                ? Math.floor(Math.log10(Math.sqrt(points / 6))) : 0;
-            document.getElementById('rebirthPointsDisplay').textContent = rebirthPoints;
-            document.getElementById('rebirthConvertPoints').textContent = convertPoints;
+function updateUpgradeButtons() {
+    for (let i = 0; i < isUpgradePurchased.length; i++) {
+        const button = document.getElementById(`upgrade${i + 1}`);
+        if (isUpgradePurchased[i]) {
+            button.className = 'blue';
+        } else if (points >= upgradeCosts[i]) {
+            button.className = 'green';
+        } else {
+            button.className = 'red';
         }
-
-        // Funkcja aktualizująca kolory przycisków ulepszeń
-        function updateUpgradeButtons() {
-            for (let i = 0; i < isUpgradePurchased.length; i++) {
-                const button = document.getElementById(`upgrade${i + 1}`);
-                if (isUpgradePurchased[i]) {
-                    button.className = 'blue'; // Ulepszenie kupione
-                } else if (points >= upgradeCosts[i]) {
-                    button.className = 'green'; // Można kupić
-                } else {
-                    button.className = 'red'; // Nie można kupić
-                }
-            }
-            for (let i = 0; i < isRebirthUpgradePurchased.length; i++) {
-                const button = document.getElementById(`rebirthUpgrade${i + 1}`);
-                if (isRebirthUpgradePurchased[i]) {
-                    button.className = 'blue'; // Ulepszenie kupione
-                } else if (rebirthPoints >= rebirthUpgradeCosts[i]) {
-                    button.className = 'green'; // Można kupić
-                } else {
-                    button.className = 'red'; // Nie można kupić
-                }
-            }
+    }
+    for (let i = 0; i < isRebirthUpgradePurchased.length; i++) {
+        const button = document.getElementById(`rebirthUpgrade${i + 1}`);
+        if (isRebirthUpgradePurchased[i]) {
+            button.className = 'blue';
+        } else if (rebirthPoints >= rebirthUpgradeCosts[i]) {
+            button.className = 'green';
+        } else {
+            button.className = 'red';
         }
-
-        // Aktualizacja mnożników co 1 sekundę
-        function updateMultipliers() {
-            let currentMultiplier = 1;
-            if (isUpgradePurchased[1]) {
-                currentMultiplier *= 1.5;
-            }
-            if (isUpgradePurchased[2]) {
-                currentMultiplier *= Math.sqrt(points / 5)+1;
-            }
-            if (isUpgradePurchased[3]) {
-                currentMultiplier *= Math.log10(fragmentPoints + 1)+1;
-            }
-            if (isUpgradePurchased[8]) {
-                currentMultiplier *= Math.log10(Math.log10(points / 5))+1;
-            }
-            if (isRebirthUpgradePurchased[2]) {
-                currentMultiplier *= Math.sqrt(Math.log10(rebirthPoints))+1;
-            }
-            multiplier = currentMultiplier;
+    }
+    for (let i = 0; i < isPrestigeUpgradePurchased.length; i++) {
+        const button = document.getElementById(`prestigeUpgrade${i + 1}`);
+        if (isPrestigeUpgradePurchased[i]) {
+            button.className = 'blue';
+        } else if (prestigePoints >= canPurchasePrestigeUpgrade[i]) {
+            button.className = 'green';
+        } else {
+            button.className = 'red';
         }
+    }
+}
 
-        function updatePointsMultipliers(){
-            let currentPointsMultiplier = 1;
-            if (isUpgradePurchased[4]){
-                currentPointsMultiplier *= 2;
-            }
-            if (isUpgradePurchased[5]){
-                currentPointsMultiplier *= Math.log10(points + 1)+1;
-            }
-            if (isUpgradePurchased[6]){
-                currentPointsMultiplier *= Math.sqrt(fragmentPoints / 5)+1;
-            }
-            if (isUpgradePurchased[7]){
-                currentPointsMultiplier *= Math.sqrt(Math.sqrt(points + 1))+1;
-            }
-            if (isRebirthUpgradePurchased[1]){
-                currentPointsMultiplier *= 2;
-            }
-            if (isRebirthUpgradePurchased[3]) {
-                currentPointsMultiplier *= Math.sqrt(Math.sqrt(rebirthPoints))+1;
-            }
-            pointsMultiplier = currentPointsMultiplier;
-        }
+function updateMultipliers() {
+    let currentMultiplier = 1;
+    if (isUpgradePurchased[1]) {
+        currentMultiplier *= 1.5;
+    }
+    if (isUpgradePurchased[2]) {
+        currentMultiplier *= Math.sqrt(points / 5) + 1;
+    }
+    if (isUpgradePurchased[3]) {
+        currentMultiplier *= Math.log10(fragmentPoints + 1) + 1;
+    }
+    if (isUpgradePurchased[8]) {
+        currentMultiplier *= Math.log10(Math.log10(points / 5)) + 1;
+    }
+    if (isRebirthUpgradePurchased[2]) {
+        currentMultiplier *= Math.sqrt(Math.log10(rebirthPoints)) + 1;
+    }
+    if (isPrestigeUpgradePurchased[1]) {
+        currentMultiplier *= 10;
+    }
+    multiplier = currentMultiplier;
+}
 
-        // Uruchomienie generacji fragmentów
-        setInterval(generateFragments, 1000 / FRAMES_PER_SECOND);
+function updatePointsMultipliers() {
+    let currentPointsMultiplier = 1;
+    if (isUpgradePurchased[4]) {
+        currentPointsMultiplier *= 2;
+    }
+    if (isUpgradePurchased[5]) {
+        currentPointsMultiplier *= Math.log10(points + 1) + 1;
+    }
+    if (isUpgradePurchased[6]) {
+        currentPointsMultiplier *= Math.sqrt(fragmentPoints / 5) + 1;
+    }
+    if (isUpgradePurchased[7]) {
+        currentPointsMultiplier *= Math.sqrt(Math.sqrt(points + 1)) + 1;
+    }
+    if (isRebirthUpgradePurchased[1]) {
+        currentPointsMultiplier *= 2;
+    }
+    if (isRebirthUpgradePurchased[3]) {
+        currentPointsMultiplier *= Math.sqrt(Math.sqrt(rebirthPoints)) + 1;
+    }
+    if (isPrestigeUpgradePurchased[0]) {
+        currentPointsMultiplier *= 3;
+    }
+    pointsMultiplier = currentPointsMultiplier;
+}
+
+function updateRebirthMultipliers() {
+    let currentRebirthMultiplier = 1;
+    if (isPrestigeUpgradePurchased[2]) {
+        currentRebirthMultiplier *= 3;
+    }
+    rebirthMultiplier = currentRebirthMultiplier;
+}
+
+setInterval(generateFragments, 1000 / FRAMES_PER_SECOND);
