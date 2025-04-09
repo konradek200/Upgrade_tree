@@ -18,6 +18,8 @@ let upgradeCosts = [5, 10, 25, 50, 100, 150, 250, 500, 1000];
 
 let isRebirthUpgradePurchased = [false, false, false, false];
 let rebirthUpgradeCosts = [1, 3, 7, 15];
+let isRebirthMilestoneAchieved = [false];
+let requiringRebirthMilestone = [100];
 
 let isPrestigeUpgradePurchased = [false, false, false];
 let prestigeUpgradeCosts = [1, 2, 4];
@@ -30,6 +32,25 @@ function updateFragmentAndPointDisplay() {
     updatePointsMultipliers();
     updateRebirthDisplay();
     updatePrestigeDisplay();
+    rebirthMilestone();
+}
+
+function rebirthMilestone() {
+    if (rebirthPoints >= requiringRebirthMilestone[0]){
+        if (!isRebirthMilestoneAchieved[0]) {
+            isRebirthMilestoneAchieved[0] = true;
+            document.getElementById('rebirthMilestone1Status').textContent = "Achived";   
+        }
+    }
+    if (isRebirthMilestoneAchieved[0]) {
+        generatePoints()
+    }
+    if (rebirthPoints >= requiringRebirthMilestone[1]) {
+        if (!isRebirthMilestoneAchieved[1]) {
+            isRebirthMilestoneAchieved[1] = true;
+            document.getElementById('rebirthMilestone2Status').textContent = "Achived";
+        }
+    }
 }
 
 function updateFragmentDisplay() {
@@ -48,7 +69,7 @@ function convertFragmentsToPoints(fragmentPoints) {
         increment += 2;
     }
     
-    return points;
+    return parseFloat(points).toFixed(2);
 }
 
 function convertPointsToRebirth(points) {
@@ -62,7 +83,7 @@ function convertPointsToRebirth(points) {
         increment += 200;
     }
     
-    return rebirthPoints;
+    return parseFloat(rebirthPoints).toFixed(2);
 }
 
 function convertRebirthToMega(rebirthPoints) {
@@ -76,19 +97,23 @@ function convertRebirthToMega(rebirthPoints) {
         increment += 8;
     }
     
-    return prestigePoints;
+    return parseFloat(prestigePoints).toFixed(2);
 }
 
 function updatePointsDisplay() {
-    document.getElementById('points').textContent = points;
+    document.getElementById('points').textContent = points.toFixed(2);
     const convertPoints = fragmentPoints >= CONVERSION_THRESHOLD
         ? convertFragmentsToPoints(fragmentPoints) * pointsMultiplier : 0;
-    document.getElementById('convertPoints').textContent = convertPoints;
+    document.getElementById('convertPoints').textContent = convertPoints.toFixed(2);
 }
 
 function generateFragments() {
     fragmentPoints += (baseGenerationRate * multiplier) / FRAMES_PER_SECOND;
     updateFragmentAndPointDisplay();
+}
+
+function generatePoints() {
+    setInterval(points = points + convertFragmentsToPoints((fragmentPoints * pointsMultiplier)) * 0.01, 500000 / FRAMES_PER_SECOND)
 }
 
 document.getElementById('mainCircle').addEventListener('click', () => {
@@ -233,12 +258,19 @@ function updateRebirthDisplay() {
         multiplier = 1;
         pointsMultiplier = 1;
         isUpgradePurchased.fill(false);
+        if (isRebirthMilestoneAchieved[1]) {
+            for (i = 0; i < 2; i++) {
+                isUpgradePurchased[i] = true;
+            }
+            points = 1;
+            fragmentPoints = 1;
+        }
     });
 
     const convertPoints = points >= REBIRTH_CONVERSION_THRESHOLD
         ? convertPointsToRebirth((points * pointsMultiplier)) : 0;
-    document.getElementById('rebirthPointsDisplay').textContent = rebirthPoints;
-    document.getElementById('rebirthConvertPoints').textContent = convertPoints;
+    document.getElementById('rebirthPointsDisplay').textContent = parseFloat(rebirthPoints).toFixed(2);
+    document.getElementById('rebirthConvertPoints').textContent = parseFloat(convertPoints).toFixed(2);
 }
 
 function updatePrestigeDisplay() {
@@ -260,8 +292,8 @@ function updatePrestigeDisplay() {
 
     const convertPoints = rebirthPoints >= PRESTIGE_CONVERSION_THRESHOLD
         ? convertRebirthToMega(rebirthPoints * rebirthMultiplier) : 0;
-    document.getElementById('prestigePointsDisplay').textContent = prestigePoints;
-    document.getElementById('prestigeConvertPoints').textContent = convertPoints;
+    document.getElementById('prestigePointsDisplay').textContent = parseFloat(prestigePoints).toFixed(2);
+    document.getElementById('prestigeConvertPoints').textContent = parseFloat(convertPoints).toFixed(2);
 }
 
 function updateUpgradeButtons() {
