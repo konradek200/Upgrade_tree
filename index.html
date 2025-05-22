@@ -7,93 +7,131 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div class="fragment-display">
-        <h2>Fragment Points: <span id="fragmentPoints">0</span></h2>
-        <p><span id="generationRate">0</span> Fragment points/s</p>
-    </div>
-
-    <div class="circle-button" id="mainCircle">P</div>
-    <div class="line"></div>
-    <div class="rebirth-circle" id="rebirthCircle">R</div>
-    <div class="line"></div>
-    <div class="prestige-circle" id="prestigeCircle">M</div>
-
-    <div class="menu" id="circleMenu">
-        <h3>Points</h3>
-        <p><span id="points">0</span> Points</p>
-        <p>You will get: <span id="convertPoints">0</span> Points (Request 10 Fragment Points)</p>
-        <button id="convertButton" style="background-color: aqua; color: black;">Turn Fragment Points to Points</button>
-
-        <h3>Upgrade</h3>
-        <div class="upgrade">
-            <button id="upgrade1" class="upgrade-button">Upgrade 1: +1 fragment Points/s (5 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade2" class="upgrade-button">Upgrade 2: x1.5 fragment Points (10 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade3" class="upgrade-button">Upgrade 3: Boost Fragment Points by Points (25 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade4" class="upgrade-button">Upgrade 4: Boost Fragment Points by itself (50 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade5" class="upgrade-button">Upgrade 5: x2 Points (100 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade6" class="upgrade-button">Upgrade 6: Boost points by itself (150 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade7" class="upgrade-button">Upgrade 7: Boost points by fragment points (250 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade8" class="upgrade-button">Upgrade 8: Boost points by itself again (500 Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="upgrade9" class="upgrade-button">Upgrade 9: Boost fragment points by points again (1000 Points)</button>
-        </div>
-    </div>
-
-    <div class="menu" id="rebirthMenu">
-        <h3>Rebirth Upgrades</h3>
-        <p>You have: <span id="rebirthPointsDisplay">0</span> Rebirth Points</p>
-        <p>You will get: <span id="rebirthConvertPoints">0</span> Rebirth Points (Request 500 Points and 9 upgrade from poits layer)</p>
-        <button id="rebirthConvertButton" style="background-color: aqua; color: black;">Convert Fragment Points and Points to Rebirth Points</button>
-        
-        <div id="rebirthMilestone1" class="milestone">
-            <p>Milestone 1: 10% Points per second</p>
-            <p>Status: <span id="rebirthMilestone1Status">Not Achieved</span></p>
+    <div class="container">
+        <!-- Info Button -->
+        <div id="infoButton" style="
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background-color: #2196F3;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+            z-index: 9999;
+        ">
+        i
         </div>
 
-        <h3>Rebirth Upgrades</h3>
-        <div class="upgrade">
-            <button id="rebirthUpgrade1" class="upgrade-button">Rebirth Upgrade 1: x2 Base Fragment Points Generation (1 Rebirth Points)</button>
+        <div id="infoModal" style="
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            color: black;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            z-index: 10000;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        ">
+        <h2>How to play?</h2>
+        <p>Gain <strong>fragment points</strong>, that you gain automatically.</p>
+        <p>Press any layers to show their upgrades and convert button.</p>
+        <p>Press convert button, to convert fragment points to <strong>points</strong>.</p>
+        <p>You can use points to buy <strong>upgrades</strong>, wich makes fragment points production faster.</p>
+        <p>If you gain enough points, you can do <strong>Rebirth</strong>, wich resets layers above, but it will give you <strong>rebirth points</strong>.</p>
+        <p>From rebirth points you can buy even more upgrades and strive for <strong>Prestige</strong>.</p>
+        <p>And in prestige the same thing as in other layers and it oges as long as other layers will be added.</p>
+        <p>Have fun!</p>
+        <button onclick="document.getElementById('infoModal').style.display = 'none';" style="
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            ">Close</button>
         </div>
-        <div class="upgrade">
-            <button id="rebirthUpgrade2" class="upgrade-button">Rebirth Upgrade 2: x2 Points Generation (3 Rebirth Points)</button>
+        <!-- Left column: Layers -->
+        <div class="left-panel">
+            <h2>Layers</h2>
+            <!-- main layers -->
+            <div class="circle-button" id="mainCircle">P</div>
+            <div class="line"></div>
+            <div class="rebirth-circle" id="rebirthCircle">R</div>
+            <div class="line"></div>
+            <div class="prestige-circle" id="prestigeCircle">M</div>
         </div>
-        <div class="upgrade">
-            <button id="rebirthUpgrade3" class="upgrade-button">Rebirth Upgrade 3: Boost fragment points by rebirth points (7 Rebirth Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="rebirthUpgrade4" class="upgrade-button">Rebirth Upgrade 4: Boost points by rebirth points (15 Rebirth Points)</button>
-        </div>
-    </div>
 
-    <div class="menu" id="prestigeMenu">
-        <h3>Prestige Upgrades</h3>
-        <p>You have: <span id="prestigePointsDisplay">0</span> Prestige Points</p>
-        <p>You will get: <span id="prestigeConvertPoints">0</span> Prestige Points (Requires 10 Rebirth Points and 4 Rebirth Upgrades)</p>
-        <button id="prestigeConvertButton" style="background-color: aqua; color: black;">Convert Rebirth Points to Prestige Points</button>
+        <!-- right column: upgrades -->
+        <div class="right-panel">
 
-        <div class="upgrade">
-            <button id="prestigeUpgrade1" class="upgrade-button">Prestige Upgrade 1: x3 Points Gain (1 Prestige Point)</button>
-        </div>
-        <div class="upgrade">
-            <button id="prestigeUpgrade2" class="upgrade-button">Prestige Upgrade 2: x10 Fragment Gain (2 Prestige Points)</button>
-        </div>
-        <div class="upgrade">
-            <button id="prestigeUpgrade3" class="upgrade-button">Prestige Upgrade 3: x2 Rebirth Gain (4 Prestige Points)</button>
+            <!-- Fragment Points - showing -->
+            <div class="fragment-display">
+                <h2>Fragment Points: <span id="fragmentPoints">0</span></h2>
+                <p><span id="generationRate">0</span> Fragment Points/s</p>
+            </div>
+
+            <!-- Menu: Points Layer -->
+            <div class="menu" id="circleMenu">
+                <h3>Points</h3>
+                <p>You have:<span id="points">0</span> Points</p>
+                <p>Gain: <span id="convertPoints">0</span> Points (Require 10 Fragment Points)</p>
+                <button id="convertButton" style="background-color: rgb(63, 34, 34); color: black;">
+                    Convert Fragment Points to Points
+                </button>
+
+                <h3>Ulepszenia</h3>
+                <div class="upgrade"><button id="upgrade1" class="upgrade-button">Upgrade 1: +1 Fragment Points/s (5 Points)</button></div>
+                <div class="upgrade"><button id="upgrade2" class="upgrade-button">Upgrade 2: x1.5 Fragment Points (10 Points)</button></div>
+                <div class="upgrade"><button id="upgrade3" class="upgrade-button">Upgrade 3: Boost Fragment Points by Points (25 Points)</button></div>
+                <div class="upgrade"><button id="upgrade4" class="upgrade-button">Upgrade 4: Boost Fragment Points by itself (50 Points)</button></div>
+                <div class="upgrade"><button id="upgrade5" class="upgrade-button">Upgrade 5: x2 Points (100 Points)</button></div>
+                <div class="upgrade"><button id="upgrade6" class="upgrade-button">Upgrade 6: Boost Points by itself (150 Points)</button></div>
+                <div class="upgrade"><button id="upgrade7" class="upgrade-button">Upgrade 7: Boost Points by Fragment Points (250 Points)</button></div>
+                <div class="upgrade"><button id="upgrade8" class="upgrade-button">Upgrade 8: Boost Points by itself again (500 Points)</button></div>
+                <div class="upgrade"><button id="upgrade9" class="upgrade-button">Upgrade 9: Boost Fragment Points by Points again (1000 Points)</button></div>
+            </div>
+
+            <!-- Menu: Rebirth Layer -->
+            <div class="menu" id="rebirthMenu">
+                <h3>Rebirth Upgrades</h3>
+                <p>You have: <span id="rebirthPointsDisplay">0</span> Rebirth Points</p>
+                <p>Otrzymasz: <span id="rebirthConvertPoints">0</span> Rebirth Points (Require 500 Points)</p>
+                <button id="rebirthConvertButton" style="background-color: rgb(63, 34, 34); color: black;">
+                    Convert Points to Rebirth Points
+                </button>
+
+                <div class="upgrade"><button id="rebirthUpgrade1" class="upgrade-button">Rebirth Upgrade 1: x2 Fragment Points base generation (1 Rebirth Point)</button></div>
+                <div class="upgrade"><button id="rebirthUpgrade2" class="upgrade-button">Rebirth Upgrade 2: x2 Points gain (3 Rebirth Points)</button></div>
+                <div class="upgrade"><button id="rebirthUpgrade3" class="upgrade-button">Rebirth Upgrade 3: Boost Fragment Points by Rebirth Points (7 Rebirth Points)</button></div>
+                <div class="upgrade"><button id="rebirthUpgrade4" class="upgrade-button">Rebirth Upgrade 4: Boost Points by Rebirth Points (15 Rebirth Points)</button></div>
+            </div>
+
+            <!-- Menu: Prestige Layer -->
+            <div class="menu" id="prestigeMenu">
+                <h3>Prestige Upgrades</h3>
+                <p>You have: <span id="prestigePointsDisplay">0</span> Prestige Points</p>
+                <p>Gain: <span id="prestigeConvertPoints">0</span> Prestige Points (Require 10 Rebirth Points)</p>
+                <button id="prestigeConvertButton" style="background-color: rgb(63, 34, 34); color: black;">
+                    Convert Rebirth Points to Prestige Points
+                </button>
+
+                <div class="upgrade"><button id="prestigeUpgrade1" class="upgrade-button">Prestige Upgrade 1: x3 Points Gain (1 Prestige Point)</button></div>
+                <div class="upgrade"><button id="prestigeUpgrade2" class="upgrade-button">Prestige Upgrade 2: x10 Fragment Gain (2 Prestige Points)</button></div>
+                <div class="upgrade"><button id="prestigeUpgrade3" class="upgrade-button">Prestige Upgrade 3: x2 Rebirth Gain (4 Prestige Points)</button></div>
+            </div>
         </div>
     </div>
 
